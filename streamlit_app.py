@@ -20,6 +20,8 @@ st.title("GoodData FlexQuery Performance and Cache Management Demo")
 # Display informative text
 st.markdown("""**This demo showcases the performance of querying data through GoodData's FlexQuery system, currently 
 using Snowflake as the underlying database. Both systems are hosted in the US data center.**
+
+**Example use:** Click 3 times on 'Execute API', then click on 'Reload Cache' and then again 3 times on 'Execute API'
 """)
 
 # Layout for Reload Cache button and text
