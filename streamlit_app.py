@@ -21,7 +21,7 @@ st.title("GoodData FlexQuery Performance and Cache Management Demo")
 st.markdown("""**This demo showcases the performance of querying data through GoodData's FlexQuery system, currently 
 using Snowflake as the underlying database. Both systems are hosted in the US data center.**
 
-**Example use:** Click 3 times on 'Execute API', then click on 'Reload Cache' and then again 3 times on 'Execute API'
+**Example use:** Click 3 times on 'Execute Query', then click on 'Reload Cache' and then again 3 times on 'Execute Query'
 """)
 
 # Layout for Reload Cache button and text
@@ -45,7 +45,7 @@ with col2:
 col1, col2 = st.columns([2, 3])
 
 with col1:
-    if st.button("Execute API"):
+    if st.button("Execute Query"):
         # Start timing the POST request execution
         post_start_time = time.time()
 
