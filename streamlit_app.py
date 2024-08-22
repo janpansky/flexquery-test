@@ -81,11 +81,13 @@ with col1:
         post_execution_time_ms = post_execution_time * 1000
         get_execution_time_ms = get_execution_time * 1000
 
-        # Store the execution times in the session state DataFrame
-        st.session_state.execution_times = st.session_state.execution_times.append(
+        # Update the DataFrame in session state
+        execution_times_df = st.session_state.execution_times  # Extract the DataFrame
+        execution_times_df = execution_times_df.append(
             {"POST Execution Time (ms)": post_execution_time_ms, "GET Execution Time (ms)": get_execution_time_ms},
             ignore_index=True
         )
+        st.session_state.execution_times = execution_times_df  # Reassign it back to session state
 
         # Display execution times
         st.write(f"Time for POST Execution: {post_execution_time_ms:.2f} ms")
