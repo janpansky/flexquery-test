@@ -1,6 +1,7 @@
-# 🎈 Blank app template
+# 🎈 FlexQuery demo
 
-A simple Streamlit app template for you to modify!
+This demo showcases the performance of querying data through GoodData's FlexQuery system, currently 
+using Snowflake as the underlying database. Both systems are hosted in the US data center.
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
 
