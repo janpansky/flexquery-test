@@ -1,0 +1,85 @@
+{
+    "resultSpec": {
+        "dimensions": [
+            {
+                "localIdentifier": "dim_0",
+                "itemIdentifiers": ["a_product_category", "a_date.quarter"],
+                "sorting": [
+                    {
+                        "attribute": {
+                            "attributeIdentifier": "a_product_category",
+                            "sortType": "DEFAULT"
+                        }
+                    }
+                ]
+            },
+            {
+                "localIdentifier": "dim_1",
+                "itemIdentifiers": ["measureGroup"]
+            }
+        ],
+        "totals": []
+    },
+    "execution": {
+        "measures": [
+            {
+                "localIdentifier": "m_order_unit_cost",
+                "definition": {
+                    "measure": {
+                        "item": {
+                            "identifier": {"id": "order_unit_cost", "type": "fact"}
+                        },
+                        "aggregation": "SUM"
+                    }
+                }
+            },
+            {
+                "localIdentifier": "m_of_net_sales",
+                "definition": {
+                    "measure": {
+                        "item": {
+                            "identifier": {"id": "of_net_sales", "type": "metric"}
+                        }
+                    }
+                }
+            },
+            {
+                "localIdentifier": "m_of_orders",
+                "definition": {
+                    "measure": {
+                        "item": {
+                            "identifier": {"id": "of_orders", "type": "metric"}
+                        }
+                    }
+                }
+            },
+            {
+                "localIdentifier": "m_of_orders_by_customer",
+                "definition": {
+                    "measure": {
+                        "item": {
+                            "identifier": {"id": "of_orders_by_customer", "type": "metric"}
+                        }
+                    }
+                }
+            }
+        ],
+        "attributes": [
+            {
+                "label": {
+                    "identifier": {"id": "product_category", "type": "label"}
+                },
+                "localIdentifier": "a_product_category"
+            },
+            {
+                "label": {
+                    "identifier": {"id": "date.quarter", "type": "label"}
+                },
+                "localIdentifier": "a_date.quarter"
+            }
+        ],
+        "filters": [],
+        "auxMeasures": []
+    },
+    "settings": {}
+}
