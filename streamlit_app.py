@@ -38,8 +38,7 @@ with col1:
 
 with col2:
     st.write("The 'Reload Cache' button clears the cache, ensuring the next API execution queries the underlying "
-             "database instead of GoodData's FlexCache. Use it with caution, as it can be costly as it run against "
-             "Snowflake.")
+             "database instead of GoodData's FlexCache. Use it with caution, as it runs against Snowflake.")
 
 # Layout for Execute API button and text
 col1, col2 = st.columns([2, 3])
@@ -71,7 +70,20 @@ with col1:
 
             if get_response.status_code == 200:
                 st.success("Data retrieval (GET) was successful!")
-                # Do not display the JSON result in the app
+
+                # Assuming the data is a list within the JSON response
+                # You will need to access the data correctly based on the structure
+                data = get_response.json()["data"]  # Adjust this line based on actual JSON structure
+
+                # Convert the data to a DataFrame
+                data_df = pd.DataFrame(data)
+
+                # Get the number of rows and columns in the DataFrame
+                num_rows, num_columns = data_df.shape
+
+                # Display the size of the data
+                st.write(f"Aggregated data retrieved: {num_rows} rows and {num_columns} columns")
+
             else:
                 st.error(f"Data retrieval (GET) failed with status code: {get_response.status_code}")
                 st.write(get_response.text)

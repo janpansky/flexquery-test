@@ -3,7 +3,7 @@
         "dimensions": [
             {
                 "localIdentifier": "dim_0",
-                "itemIdentifiers": ["a_product_category", "a_date.quarter"],
+                "itemIdentifiers": ["a_product_category", "a_date.day"],
                 "sorting": [
                     {
                         "attribute": {
@@ -73,9 +73,9 @@
             },
             {
                 "label": {
-                    "identifier": {"id": "date.quarter", "type": "label"}
+                    "identifier": {"id": "date.day", "type": "label"}
                 },
-                "localIdentifier": "a_date.quarter"
+                "localIdentifier": "a_date.day"
             }
         ],
         "filters": [],
