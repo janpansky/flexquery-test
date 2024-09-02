@@ -1,120 +1,55 @@
 import streamlit as st
-import time
 import pandas as pd
-from api_requests import reload_cache, execute_api_call, get_results
-from utils import load_json_body
+from actions import reload_cache_action, execute_query_action, capture_dashboard_load_time
+from config import workspace_id, data_source_id
 
-# Load credentials from Streamlit's secrets management
-hostname = st.secrets["api"]["hostname"]
-token = st.secrets["api"]["token"]
-workspace_id = "gdc_demo_a3da0f24-9c32-4f19-9848-43dfe4096416"
-data_source_id = "gdc_demo_20557729-8b95-4121-b942-6abb88b735ad"
+# Initialize session state
+st.session_state.setdefault('execution_times', pd.DataFrame(columns=["Query Type", "POST Execution Time (ms)", "GET Execution Time (ms)", "Total Execution Time (ms)"]))
+st.session_state.setdefault('dashboard_load_times', pd.DataFrame(columns=["Load Time (ms)"]))
+st.session_state.setdefault('cache_status', 'warm')  # Track cache status
 
-# Initialize or load execution times from the session state
-if 'execution_times' not in st.session_state:
-    st.session_state.execution_times = pd.DataFrame(columns=["POST Execution Time (ms)", "GET Execution Time (ms)"])
-
-# Streamlit app title
-st.title("GoodData FlexQuery Performance and Cache Management Demo")
-
-# Display informative text
-st.markdown("""**This demo showcases the performance of querying data through GoodData's FlexQuery system, currently 
+# Streamlit App Layout
+st.title("GoodData in-memory caching demo")
+st.markdown("""**This demo showcases the performance of querying data through GoodData's in-memory caching layer (FlexQuery), currently 
 using Snowflake as the underlying database. Both systems are hosted in the US data center.**
 
-**Example use:** Click 3 times on 'Execute Query', then click on 'Reload Cache' and then again 3 times on 'Execute Query'
+**Example use:** Click 3 times on 'Execute Custom Query', then click on 'Reload Cache' and then again 3 times on 'Execute Custom Query'.
 """)
 
-# Layout for Reload Cache button and text
-col1, col2 = st.columns([2, 3])
+# Buttons and Tabs
+if st.button("Reload Cache"):
+    reload_cache_action()
 
-with col1:
-    if st.button("Reload Cache"):
-        response = reload_cache(hostname, token, data_source_id)
-        if response.status_code < 205:
-            st.success("Cache reloaded successfully!")
-        else:
-            st.error(f"Cache reload failed with status code: {response.status_code}")
-            st.write(response.text)
+st.write("The 'Reload Cache' button clears the cache, ensuring the next API execution queries the underlying database instead of GoodData's FlexCache. Use it with caution, as it runs against Snowflake.")
 
-with col2:
-    st.write("The 'Reload Cache' button clears the cache, ensuring the next API execution queries the underlying "
-             "database instead of GoodData's FlexCache. Use it with caution, as it runs against Snowflake.")
+tab1, tab2 = st.tabs(["Execute Custom Query", "Embedded Dashboard"])
 
-# Layout for Execute API button and text
-col1, col2 = st.columns([2, 3])
-
-with col1:
+with tab1:
+    st.header("Execute Custom Query")
     if st.button("Execute Query"):
-        # Start timing the POST request execution
-        post_start_time = time.time()
+        post_time, get_time, data = execute_query_action()
 
-        # Load the JSON body from a file
-        data = load_json_body("request_body.json")
+        if not st.session_state.execution_times.empty:
+            st.subheader("Execution Times Summary")
 
-        response = execute_api_call(hostname, token, workspace_id, data)
-        post_end_time = time.time()
-        post_execution_time = post_end_time - post_start_time
+            # Separate data for cached and uncached queries
+            cached_queries = st.session_state.execution_times[st.session_state.execution_times["Query Type"] == "cached"]
+            uncached_queries = st.session_state.execution_times[st.session_state.execution_times["Query Type"] == "uncached"]
 
-        if response.status_code == 200:
-            st.success("API call (POST) was successful!")
-            result = response.json()
+            # Display cached queries (blue bars)
+            if not cached_queries.empty:
+                st.bar_chart(cached_queries[["POST Execution Time (ms)", "GET Execution Time (ms)"]])
 
-            # Extract the result ID from the POST response
-            execution_result_id = result["executionResponse"]["links"]["executionResult"]
+            # Overlay uncached queries (red bars)
+            if not uncached_queries.empty:
+                st.bar_chart(uncached_queries[["POST Execution Time (ms)", "GET Execution Time (ms)"]], use_container_width=True)
 
-            # Start timing the GET request execution
-            get_start_time = time.time()
-            get_response = get_results(hostname, token, workspace_id, execution_result_id)
-            get_end_time = time.time()
-            get_execution_time = get_end_time - get_start_time
+        # Display the DataFrame at the very bottom
+        if data is not None:
+            st.subheader("Query Result Data")
+            st.write(data)
 
-            if get_response.status_code == 200:
-                st.success("Data retrieval (GET) was successful!")
-
-                # Assuming the data is a list within the JSON response
-                # You will need to access the data correctly based on the structure
-                data = get_response.json()["data"]  # Adjust this line based on actual JSON structure
-
-                # Convert the data to a DataFrame
-                data_df = pd.DataFrame(data)
-
-                # Get the number of rows and columns in the DataFrame
-                num_rows, num_columns = data_df.shape
-
-                # Display the size of the data
-                st.write(f"Aggregated data retrieved: {num_rows} rows and {num_columns} columns")
-
-            else:
-                st.error(f"Data retrieval (GET) failed with status code: {get_response.status_code}")
-                st.write(get_response.text)
-        else:
-            st.error(f"API request (POST) failed with status code: {response.status_code}")
-            st.write(response.text)
-
-        # Convert execution times to milliseconds
-        post_execution_time_ms = post_execution_time * 1000
-        get_execution_time_ms = get_execution_time * 1000
-
-        # Create a DataFrame for the new data
-        new_data = pd.DataFrame({
-            "POST Execution Time (ms)": [post_execution_time_ms],
-            "GET Execution Time (ms)": [get_execution_time_ms]
-        })
-
-        # Update the DataFrame in session state using pd.concat
-        st.session_state.execution_times = pd.concat([st.session_state.execution_times, new_data], ignore_index=True)
-
-        # Display execution times
-        st.write(f"Time for POST Execution: {post_execution_time_ms:.2f} ms")
-        st.write(f"Time for GET Execution: {get_execution_time_ms:.2f} ms")
-
-with col2:
-    st.write(
-        "Click the button to execute the API call. This triggers a POST request to run a query and a GET request to "
-        "retrieve the results. After a cache reload, the execution may take longer as it queries the underlying "
-        "database. If clicked multiple times without cache invalidation, subsequent executions will use GoodData's "
-        "FlexCache, which is faster.")
-
-# Plot the execution times on a line chart
-if not st.session_state.execution_times.empty:
-    st.line_chart(st.session_state.execution_times)
+with tab2:
+    st.header("Embedded Dashboard")
+    if st.button("Refresh and Capture Load Time"):
+        capture_dashboard_load_time()
