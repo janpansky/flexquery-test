@@ -119,10 +119,27 @@ def convert_response_to_dataframe(response_json):
     return df
 
 
-# Function to display the data once after execution
-def display_data(data):
-    st.subheader("Query Result Data")
-    st.write(data)
+# Simulate and display the cost for multiple users
+def simulate_cost_per_user(data_scanned_mb):
+    # BigQuery pricing assumptions
+    cost_per_tb = 5  # $5 per TB
+    cost_per_mb = cost_per_tb / (1024 * 1024)  # Cost per MB
+
+    # User counts to simulate for
+    user_counts = [1, 10, 100, 1000, 10000]
+
+    # Table to store results
+    cost_data = []
+
+    # Calculate cost for each user count
+    for users in user_counts:
+        total_data_scanned_mb = data_scanned_mb * users
+        total_cost = total_data_scanned_mb * cost_per_mb
+        cost_data.append({"Users": users, "Data Scanned (MB)": total_data_scanned_mb, "Estimated Cost ($)": total_cost})
+
+    # Convert to DataFrame and display
+    cost_df = pd.DataFrame(cost_data)
+    st.table(cost_df)
 
 
 # Function to capture dashboard load time
@@ -132,17 +149,16 @@ def capture_dashboard_load_time():
     st.session_state.dashboard_load_time_initialization = None
     st.session_state.dashboard_load_time_render_complete = None
     st.components.v1.html(generate_dashboard_html(), height=600)
-    display_dashboard_load_time()
 
 
 # Function to generate dashboard HTML
 def generate_dashboard_html():
     return f"""
         <div class="responsive-web-component-container">
-            <script type="module" src="{hostname}/components/gdc_demo_a3da0f24-9c32-4f19-9848-43dfe4096416.js?auth=sso"></script>
+            <script type="module" src="{hostname}/components/ecommerce-parent.js?auth=sso"></script>
             <gd-dashboard 
-                id="myDashboard"
-                dashboard="c1d67cd4-94ad-40aa-91a5-cdf4143f778a"
+                id="myDashboard"    
+                dashboard="092929af-375a-4e9c-964f-2add8cdbd259"
             ></gd-dashboard>
         </div>
         <script>

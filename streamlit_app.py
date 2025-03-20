@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-from actions import reload_cache_action, execute_query_action, capture_dashboard_load_time
-from config import workspace_id, data_source_id
+from actions import reload_cache_action, execute_query_action, capture_dashboard_load_time, simulate_cost_per_user
 
 # Initialize session state
 st.session_state.setdefault('execution_times', pd.DataFrame(columns=["Query Type", "POST Execution Time (ms)", "GET Execution Time (ms)", "Total Execution Time (ms)"]))
@@ -48,6 +47,10 @@ with tab1:
         if data is not None:
             st.subheader("Query Result Data")
             st.write(data)
+
+        # Simulate and display cost for multiple users
+        st.subheader("Cost Simulation per 1 executed query (10MB)")
+        simulate_cost_per_user(10)  # 10 MB per query as default scan size for billing
 
 with tab2:
     st.header("Embedded Dashboard")
