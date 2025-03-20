@@ -54,11 +54,11 @@
                 }
             },
             {
-                "localIdentifier": "m_of_orders_by_customer",
+                "localIdentifier": "of_orders",
                 "definition": {
                     "measure": {
                         "item": {
-                            "identifier": {"id": "of_orders_by_customer", "type": "metric"}
+                            "identifier": {"id": "of_orders", "type": "metric"}
                         }
                     }
                 }
